@@ -1,4 +1,4 @@
-const users = require("../geonames-all-cities-with-a-population-1000.json");
+const users = require("../geonames-france-cities-with-a-population-1000.json");
 
 const typeDefs = `
   type Query {
