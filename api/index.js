@@ -1,5 +1,5 @@
 const users = require("../geonames-france-cities-with-a-population-1000.json");
-
+const responseCachePlugin = require("apollo-server-plugin-response-cache");
 const typeDefs = `
   type Query {
     cities(name: String, country: String): [City]
@@ -28,23 +28,26 @@ const typeDefs = `
   }
 `;
 
-const getCities = (args) => 
-      users
-        .filter(
-          ({ fields: { name, country } }) =>
-            (!args.name || args.name.toLowerCase() === name.toLowerCase()) &&
-            (!args.country ||
-              args.country.toLowerCase() === country.toLowerCase())
-        )
-        .map(({ fields }) => fields)
+const getCities = (args) =>
+  users
+    .filter(
+      ({ fields: { name, country } }) =>
+        (!args.name || args.name.toLowerCase() === name.toLowerCase()) &&
+        (!args.country || args.country.toLowerCase() === country.toLowerCase())
+    )
+    .map(({ fields }) => fields);
 
 const resolvers = {
   Query: {
-    city: (_, args) => {
+    city: (_, args, _, info) => {
+      info.cacheControl.setCacheHint({ maxAge: 60 * 60 * 24, scope: "PUBLIC" });
       const cities = getCities(args);
       return cities.length > 0 ? cities[0] : null;
     },
-    cities: (_, args) => getCities(args),
+    cities: (_, args, _, info) => {
+      info.cacheControl.setCacheHint({ maxAge: 60 * 60 * 24, scope: "PUBLIC" });
+      return getCities(args);
+    },
   },
 };
 
@@ -57,6 +60,10 @@ const server = new ApolloServer({
   resolvers,
   playground: true,
   introspection: true,
+  cacheControl: {
+    defaultMaxAge: 60 * 60 * 24,
+  },
+  plugins: [responseCachePlugin()],
 });
 
 module.exports = server.createHandler({
