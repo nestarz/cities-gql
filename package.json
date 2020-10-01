@@ -6,6 +6,7 @@
   "dependencies": {
     "@saeris/apollo-server-vercel": "^0.4.0",
     "apollo-server-express": "^2.18.1",
+    "apollo-server-plugin-response-cache": "^0.5.5",
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
     "graphql-tools": "^6.2.4"
