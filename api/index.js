@@ -39,12 +39,12 @@ const getCities = (args) =>
 
 const resolvers = {
   Query: {
-    city: (_, args, _, info) => {
+    city: (_, args, __, info) => {
       info.cacheControl.setCacheHint({ maxAge: 60 * 60 * 24, scope: "PUBLIC" });
       const cities = getCities(args);
       return cities.length > 0 ? cities[0] : null;
     },
-    cities: (_, args, _, info) => {
+    cities: (_, args, __, info) => {
       info.cacheControl.setCacheHint({ maxAge: 60 * 60 * 24, scope: "PUBLIC" });
       return getCities(args);
     },
