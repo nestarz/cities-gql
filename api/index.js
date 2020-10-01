@@ -3,6 +3,7 @@ const users = require("../geonames-france-cities-with-a-population-1000.json");
 const typeDefs = `
   type Query {
     cities(name: String, country: String): [City]
+    city(name: String, country: String): City
   }
   type City {
     admin4_code: String,
@@ -27,17 +28,23 @@ const typeDefs = `
   }
 `;
 
-const resolvers = {
-  Query: {
-    cities: (_, args) =>
+const getCities = (args) => 
       users
         .filter(
           ({ fields: { name, country } }) =>
-            args.name.toLowerCase() === name.toLowerCase() &&
+            (!args.name || args.name.toLowerCase() === name.toLowerCase()) &&
             (!args.country ||
               args.country.toLowerCase() === country.toLowerCase())
         )
-        .map(({ fields }) => fields),
+        .map(({ fields }) => fields)
+
+const resolvers = {
+  Query: {
+    city: (_, args) => {
+      const cities = getCities(args);
+      return cities.length > 0 ? cities[0] : null;
+    },
+    cities: (_, args) => getCities(args),
   },
 };
 
